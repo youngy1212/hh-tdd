@@ -140,10 +140,25 @@ class PointServiceTest {
         UserPoint MockUserPoint = new UserPoint(userId, 7000, System.currentTimeMillis());
         when(userPointTable.selectById(userId)).thenReturn(MockUserPoint);
 
-        // when
+        // when //Then
         assertThatThrownBy(()-> pointService.useUserPoint(userId, 8000))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("사용할 수 있는 포인트가 부족합니다.");
+    }
+
+    @DisplayName("충전 후 금액이 잔고 최대금액 10,000 포인트보다 커서 실패한다.")
+    @Test
+    void testUserPointFailMaxBalance() {
+
+        // given
+        long userId = 1L;
+        UserPoint MockUserPoint = new UserPoint(userId, 199000, System.currentTimeMillis());
+        when(userPointTable.selectById(userId)).thenReturn(MockUserPoint);
+
+        // when //Then
+        assertThatThrownBy(()-> pointService.chargeUserPoint(userId, 1001))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("충전 한도를 초과했습니다.");
     }
 
 }

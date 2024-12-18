@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class PointService {
 
-   private final UserPointTable userPointTable;
-   private final  PointHistoryTable pointHistoryTable;
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
+
+    private static final long USER_MAX_POINT = 100000;
+
 
     //User 포인트 조회
     public UserPoint getUserPoint(long id) {
@@ -35,6 +38,11 @@ public class PointService {
 
         UserPoint userPoint = userPointTable.selectById(id);
         long updateAmount = (userPoint.point() + amount);
+
+        if (updateAmount > USER_MAX_POINT) {
+            throw new IllegalArgumentException("충전 한도를 초과했습니다.");
+        }
+
         return userPointTable.insertOrUpdate(id, updateAmount);
     }
 
