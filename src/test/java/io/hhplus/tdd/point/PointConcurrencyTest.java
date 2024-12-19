@@ -26,7 +26,7 @@ class PointConcurrencyTest {
         // given
         long userId = 1L;
 
-        //기초 포인트 설정 : 현재 잔액 1000
+        //기초 포인트 설정 : 현재 잔액 9000
         pointService.chargeUserPoint(userId, 9000);
 
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT); //스레드 풀 생성
