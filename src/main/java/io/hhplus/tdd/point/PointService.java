@@ -3,6 +3,7 @@ package io.hhplus.tdd.point;
 import io.hhplus.tdd.database.PointHistoryTable;
 import io.hhplus.tdd.database.UserPointTable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,8 +17,8 @@ public class PointService {
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
 
-    private static final long USER_MAX_POINT = 100000;
-    private final ConcurrentHashMap<Long, Lock> userLockMap = new ConcurrentHashMap<>();
+    private static final long USER_MAX_POINT = 100_000L;
+    private final Map<Long, Lock> userLockMap = new ConcurrentHashMap<>();
 
     //락을 가져오는 메서드
     private Lock getUserLock(long userId){
@@ -25,7 +26,7 @@ public class PointService {
     }
 
     //User 포인트 조회
-    public synchronized UserPoint getUserPoint(long id) {
+    public UserPoint getUserPoint(long id) {
         return userPointTable.selectById(id);
     }
 
@@ -36,17 +37,18 @@ public class PointService {
 
     //User 포인트 충전
     public UserPoint chargeUserPoint(long id, long amount) {
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
+        }
+
+        if (amount > 10000) {
+            throw new IllegalArgumentException("충전 금액은 10,000 보다 작아야 합니다.");
+        }
+
         Lock lock = getUserLock(id);
         lock.lock();
         try {
-
-            if (amount <= 0) {
-                throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
-            }
-
-            if (amount > 10000) {
-                throw new IllegalArgumentException("충전 금액은 10,000 보다 작아야 합니다.");
-            }
 
             UserPoint userPoint = userPointTable.selectById(id);
             long updateAmount = (userPoint.point() + amount);
